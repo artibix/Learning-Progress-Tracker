@@ -24,5 +24,23 @@ jobs:
       - name: Install dependencies
         run: npm install -g @lint-md/cli
 
-      - name: Run lint-md
-        run: lint-md '**/*.md'
+      - name: Get changed Markdown files
+        id: get_changed_files
+        run: |
+          # Fetch the previous commit to compare changes
+          git fetch origin main --depth=1
+
+          # Get a list of changed .md files in the current commit or PR
+          git diff --name-only HEAD^ HEAD | grep "\.md$" > changed_md_files.txt || true
+
+          # Output the changed files for debugging purposes
+          cat changed_md_files.txt
+
+      - name: Run lint-md on changed files
+        if: success() && steps.get_changed_files.outputs.changed_files != ''
+        run: |
+          # Read the file with changed files and lint each one
+          for file in $(cat changed_md_files.txt); do
+            echo "Running lint-md on $file"
+            lint-md "$file"
+          done
