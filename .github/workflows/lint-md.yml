@@ -28,7 +28,7 @@ jobs:
         id: get_changed_files
         run: |
           # Fetch the previous commit to compare changes
-          git fetch origin main --depth=1
+          git fetch origin main --depth=2
 
           # Get a list of changed .md files in the current commit or PR
           git diff --name-only HEAD^ HEAD | grep "\.md$" > changed_md_files.txt || true
